@@ -1,24 +1,28 @@
 import boardImage from "../assets/board.png";
 
 const BOARD_SIZE = 620;
-const CELL_SIZE = BOARD_SIZE / 10;
+
+// Blue border around the board
+const GRID_OFFSET = 13;
+
+// Actual playable area
+const GRID_SIZE = 594;
+
+const CELL_SIZE = GRID_SIZE / 10;
 
 function getCellCoordinates(position) {
-    if (position <= 0) {
-        position = 1;
-    }
+    if (position <= 0) position = 1;
 
     const row = Math.floor((position - 1) / 10);
     let col = (position - 1) % 10;
 
-    // Zig-zag rows
     if (row % 2 === 1) {
         col = 9 - col;
     }
 
     return {
-        left: col * CELL_SIZE + CELL_SIZE / 2,
-        top: (9 - row) * CELL_SIZE + CELL_SIZE / 2
+        left: GRID_OFFSET + col * CELL_SIZE + CELL_SIZE / 2,
+        top: GRID_OFFSET + (9 - row) * CELL_SIZE + CELL_SIZE / 2
     };
 }
 
@@ -30,7 +34,9 @@ function Board({ players }) {
                 width: "620px",
 height: "620px",
                 backgroundImage: `url(${boardImage})`,
-                backgroundSize: "cover",
+                backgroundSize: "100% 100%",
+backgroundRepeat: "no-repeat",
+backgroundPosition: "center",
                 border: "2px solid black"
             }}
         >
