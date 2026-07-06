@@ -1,27 +1,16 @@
-import { useState } from 'react';
-import axios from 'axios';
+import { Routes, Route } from "react-router-dom";
+import Home from "./pages/Home";
+import JoinPage from "./pages/JoinPage";
+import GamePage from "./pages/GamePage";
 
 function App() {
-  const [roomCode, setRoomCode] = useState('');
-
-  const createGame = async () => {
-    const res = await axios.post('http://localhost:5075/api/game/create');
-    setRoomCode(res.data.roomCode || res.data.RoomCode);
-  };
-
-  return (
-    <div style={{ padding: 20 }}>
-      <h1>Snake & Ladder</h1>
-
-      <button onClick={createGame}>
-        Create Game
-      </button>
-
-      {roomCode && (
-        <h2>Room Code: {roomCode}</h2>
-      )}
-    </div>
-  );
+    return (
+        <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/join/:roomCode" element={<JoinPage />} />
+            <Route path="/game/:roomCode" element={<GamePage />} />
+        </Routes>
+    );
 }
 
 export default App;

@@ -3,7 +3,7 @@ namespace SnakeLadder.Application.Features.Games.RollDice;
 public class RollDiceResponse
 {
     public int Dice { get; set; }
-
+    public string MoveType { get; set; } = "Normal";
     public int OldPosition { get; set; }
 
     public int NewPosition { get; set; }

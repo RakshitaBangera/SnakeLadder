@@ -3,6 +3,7 @@ namespace SnakeLadder.Domain.Entities;
 public class Game
 {
     public Guid Id { get; set; }
+    public Guid? ExitedPlayerId { get; set; }
 
     public string RoomCode { get; set; } = string.Empty;
 

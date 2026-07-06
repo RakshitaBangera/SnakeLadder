@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using SnakeLadder.Application.Features.Games.GetGameState;
 using SnakeLadder.Application.Features.Games.RollDice;
 using SnakeLadder.Application.Helpers;
+using SnakeLadder.Application.Features.Games.ExitGame;
 
 namespace SnakeLadder.API.Controllers;
 
@@ -110,37 +111,48 @@ public class GameController : ControllerBase
 
             return Ok(response);
     }
-    [HttpGet("{roomCode}")]
-    public IActionResult GetGameState(string roomCode)
+   [HttpGet("{roomCode}")]
+public IActionResult GetGameState(string roomCode)
+{
+    var game = _context.Games
+        .FirstOrDefault(g => g.RoomCode == roomCode);
+        
+
+    if (game == null)
     {
-        var game = _context.Games
-            .FirstOrDefault(g => g.RoomCode == roomCode);
-
-        if (game == null)
-        {
-            return NotFound("Game not found.");
-        }
-
-        var players = _context.Players
-            .Where(p => p.GameId == game.Id)
-            .OrderBy(p => p.PlayerOrder)
-            .Select(p => new PlayerResponse
-            {
-                Name = p.Name,
-                Position = p.Position,
-                PlayerOrder = p.PlayerOrder
-            })
-            .ToList();
-
-        var response = new GameStateResponse
-        {
-            RoomCode = game.RoomCode,
-            Status = game.Status,
-            Players = players
-        };
-
-        return Ok(response);
+        return NotFound("Game not found.");
     }
+
+    var players = _context.Players
+        .Where(p => p.GameId == game.Id)
+        .OrderBy(p => p.PlayerOrder)
+        .Select(p => new PlayerResponse
+        {
+            Id = p.Id,
+            Name = p.Name,
+            Position = p.Position,
+            PlayerOrder = p.PlayerOrder
+        })
+        .ToList();
+
+    // ✅ GET CURRENT TURN PLAYER NAME
+    var currentTurnPlayerName = players
+        .FirstOrDefault(p => p.Id == game.CurrentTurnPlayerId)?.Name;
+
+    var response = new GameStateResponse
+    {
+        GameId = game.Id,
+        RoomCode = game.RoomCode,
+        Status = game.Status,
+        CurrentTurnPlayerId = game.CurrentTurnPlayerId,
+        CurrentTurnPlayerName = currentTurnPlayerName, // 🔥 THIS WAS MISSING
+        WinnerId = game.WinnerId,
+        Players = players,
+        ExitedPlayerId = game.ExitedPlayerId
+    };
+
+    return Ok(response);
+}
     [HttpPost("roll")]
 public IActionResult RollDice([FromBody] RollDiceRequest request)
 {
@@ -197,8 +209,19 @@ if (newPosition > 100)
 }
 
 // Check for snake or ladder
+string moveType = "Normal";
+
 if (Board.SnakesAndLadders.TryGetValue(newPosition, out var finalPosition))
 {
+    if (finalPosition > newPosition)
+    {
+        moveType = "Ladder";
+    }
+    else
+    {
+        moveType = "Snake";
+    }
+
     newPosition = finalPosition;
 }
 
@@ -220,24 +243,30 @@ if (newPosition == 100)
     };
 
     _context.Moves.Add(move);
-    var otherPlayer = _context.Players.FirstOrDefault(p =>
-    p.GameId == game.Id &&
-    p.Id != player.Id);
-    
-    if (game.Status != "Finished" && otherPlayer != null)
+    // Change turn only if the game is still running
+// and the player didn't roll a 6
+if (game.Status != "Finished" && dice != 6)
 {
-    game.CurrentTurnPlayerId = otherPlayer.Id;
+    var otherPlayer = _context.Players.FirstOrDefault(p =>
+        p.GameId == game.Id &&
+        p.Id != player.Id);
+
+    if (otherPlayer != null)
+    {
+        game.CurrentTurnPlayerId = otherPlayer.Id;
+    }
 }
     _context.SaveChanges();
     
     var response = new RollDiceResponse
-        {
-            Dice = dice,
-            OldPosition = oldPosition,
-            NewPosition = newPosition,
-            NextPlayerId = game.CurrentTurnPlayerId ?? Guid.Empty,
-            GameStatus = game.Status
-        };
+{
+    Dice = dice,
+    OldPosition = oldPosition,
+    NewPosition = newPosition,
+    NextPlayerId = game.CurrentTurnPlayerId ?? Guid.Empty,
+    GameStatus = game.Status,
+    MoveType = moveType
+};
         string message;
 
 if (game.Status == "Finished")
@@ -250,7 +279,14 @@ else if (oldPosition == newPosition && dice + oldPosition > 100)
 }
 else
 {
-    message = $"You rolled a {dice}.";
+    if (dice == 6 && game.Status != "Finished")
+{
+    message = "🎲 You rolled a 6! Play again.";
+}
+else
+{
+    message = $"🎲 You rolled a {dice}.";
+}
 }
         return Ok(new
 {
@@ -258,7 +294,32 @@ else
     Message = message,
     Data = response
 });
-}
 
+}
+[HttpPost("exit")]
+public IActionResult ExitGame([FromBody] ExitGameRequest request)
+{
+    var game = _context.Games.FirstOrDefault(g => g.Id == request.GameId);
+
+    if (game == null)
+    {
+        return NotFound(new ExitGameResponse
+        {
+            Success = false,
+            Message = "Game not found."
+        });
+    }
+
+    game.Status = "Finished";
+game.ExitedPlayerId = request.PlayerId;
+
+    _context.SaveChanges();
+
+    return Ok(new ExitGameResponse
+    {
+        Success = true,
+        Message = "Player exited the game."
+    });
+}
 
 }
