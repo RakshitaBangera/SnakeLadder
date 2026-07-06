@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../api/gameApi";
 import MovePopup from "../components/MovePopup";
+import Board from "../components/Board";
 
 const playerId = localStorage.getItem("playerId");
 
@@ -150,6 +151,7 @@ const [moveType, setMoveType] = useState("");
         </li>
     ))}
 </ul>
+    <Board players={game.players} />
 
             <hr />
             
