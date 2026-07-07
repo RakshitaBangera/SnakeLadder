@@ -3,8 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import api from "../api/gameApi";
 import MovePopup from "../components/MovePopup";
 import Board from "../components/Board";
-
-const playerId = localStorage.getItem("playerId");
+import "./GamePage.css";
 
 function GamePage() {
     const { roomCode } = useParams();
@@ -60,10 +59,8 @@ function GamePage() {
                 playerId: playerId
             });
 
-            // Only show dice message here
             setMessage(res.data.message);
 
-            // Popup will automatically come from fetchGame()
             fetchGame();
         } catch (err) {
             setMessage(err.response?.data?.message || "Error rolling dice");
@@ -122,79 +119,96 @@ function GamePage() {
     }
 
     return (
-        <div>
+        <div className="game-page">
+
             <MovePopup
                 show={showPopup}
                 message={popupMessage}
             />
 
-            <h1>🎮 Game Lobby</h1>
+            <h1 className="game-title">
+                🎮 Snake & Ladder
+            </h1>
 
-            <h2>Room: {game.roomCode}</h2>
+            <div className="main-container">
 
-            <p>Status: {game.status}</p>
+                <Board players={game.players} />
 
-            <hr />
+                <div className="right-panel">
 
-            <h2>
-                🎯 Current Turn: {game.currentTurnPlayerName || "Loading..."}
-            </h2>
+                    <div className="player-card">
+                        <h2>
+                            🔴 {(game.players || [])[0]?.name || "Waiting..."}
+                        </h2>
 
-            <h3>Players</h3>
+                        <p>
+                            Position : {(game.players || [])[0]?.position ?? 0}
+                        </p>
 
-            <ul>
-                {(game.players || []).map((p) => (
-                    <li
-                        key={p.id}
-                        style={{
-                            fontWeight:
-                                p.id === game.currentTurnPlayerId
-                                    ? "bold"
-                                    : "normal",
-                            color:
-                                p.id === game.currentTurnPlayerId
-                                    ? "green"
-                                    : "black"
-                        }}
+                        {game.currentTurnPlayerId ===
+                            (game.players || [])[0]?.id && (
+                            <p className="turn">
+                                🎯 Your Turn
+                            </p>
+                        )}
+                    </div>
+
+                    <div className="player-card">
+                        <h2>
+                            🔵 {(game.players || [])[1]?.name || "Waiting..."}
+                        </h2>
+
+                        <p>
+                            Position : {(game.players || [])[1]?.position ?? 0}
+                        </p>
+
+                        {game.currentTurnPlayerId ===
+                            (game.players || [])[1]?.id && (
+                            <p className="turn">
+                                🎯 Your Turn
+                            </p>
+                        )}
+                    </div>
+
+                    <div className="player-card">
+                        <h2>🎮 Game</h2>
+
+                        <p>Room : {game.roomCode}</p>
+
+                        <p>Status : {game.status}</p>
+                    </div>
+
+                    <button
+                        className="roll-button"
+                        onClick={rollDice}
+                        disabled={game.currentTurnPlayerId !== playerId}
                     >
-                        {p.name} (Position: {p.position})
-                    </li>
-                ))}
-            </ul>
+                        🎲 Roll Dice
+                    </button>
 
-            <Board players={game.players} />
+                </div>
 
-            <hr />
+            </div>
 
-            {game.status === "InProgress" ? (
+            <div className="exit-container">
                 <button
-                    onClick={rollDice}
-                    disabled={game.currentTurnPlayerId !== playerId}
+                    className="exit-button"
+                    onClick={exitGame}
                 >
-                    🎲 Roll Dice
+                    🚪 Exit Game
                 </button>
-            ) : (
-                <p>Game Over</p>
-            )}
+            </div>
 
-            <p>{message}</p>
-
-            <br />
-            <br />
-
-            <button
-                onClick={exitGame}
+            <div
                 style={{
-                    backgroundColor: "#d9534f",
-                    color: "white",
-                    padding: "10px 18px",
-                    border: "none",
-                    borderRadius: "6px",
-                    cursor: "pointer"
+                    marginTop: "25px",
+                    textAlign: "center",
+                    fontSize: "22px"
                 }}
             >
-                🚪 Exit Game
-            </button>
+                {message}
+            </div>
+
         </div>
     );
 }

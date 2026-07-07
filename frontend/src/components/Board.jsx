@@ -1,9 +1,9 @@
 import boardImage from "../assets/board.png";
 
-const BOARD_SIZE = 620;
+const BOARD_SIZE = 540;
 
-const GRID_OFFSET = 16;
-const GRID_SIZE = 589;
+const GRID_OFFSET = 9;
+const GRID_SIZE = 522;
 
 const CELL_SIZE = GRID_SIZE / 10;
 
