@@ -7,21 +7,37 @@ import Board from "../components/Board";
 const playerId = localStorage.getItem("playerId");
 
 function GamePage() {
-    
     const { roomCode } = useParams();
     const navigate = useNavigate();
+
     const [game, setGame] = useState(null);
     const [message, setMessage] = useState("");
-    const [showPopup, setShowPopup] = useState(false);
-const [moveType, setMoveType] = useState("");
 
-    // Get the current player's ID from localStorage
+    const [showPopup, setShowPopup] = useState(false);
+    const [popupMessage, setPopupMessage] = useState("");
+    const [lastSeenEventId, setLastSeenEventId] = useState(null);
+
     const playerId = localStorage.getItem("playerId");
 
     const fetchGame = async () => {
         try {
             const res = await api.get(`/Game/${roomCode}`);
+
             setGame(res.data);
+
+            if (
+                res.data.lastEventId &&
+                res.data.lastEventId !== lastSeenEventId
+            ) {
+                setPopupMessage(res.data.lastEventMessage);
+                setShowPopup(true);
+
+                setLastSeenEventId(res.data.lastEventId);
+
+                setTimeout(() => {
+                    setShowPopup(false);
+                }, 4500);
+            }
         } catch (err) {
             console.error(err);
         }
@@ -44,15 +60,10 @@ const [moveType, setMoveType] = useState("");
                 playerId: playerId
             });
 
+            // Only show dice message here
             setMessage(res.data.message);
-            if (res.data.data.moveType !== "Normal") {
-            setMoveType(res.data.data.moveType);
-            setShowPopup(true);
 
-            setTimeout(() => {
-                setShowPopup(false);
-            }, 2500);
-        }
+            // Popup will automatically come from fetchGame()
             fetchGame();
         } catch (err) {
             setMessage(err.response?.data?.message || "Error rolling dice");
@@ -60,31 +71,30 @@ const [moveType, setMoveType] = useState("");
     };
 
     const exitGame = async () => {
-    const confirmExit = window.confirm(
-        "Are you sure you want to leave the game?"
-    );
+        const confirmExit = window.confirm(
+            "Are you sure you want to leave the game?"
+        );
 
-    if (!confirmExit) return;
+        if (!confirmExit) return;
 
-    try {
-        await api.post("/Game/exit", {
-            gameId: game.gameId,
-            playerId: playerId
-        });
+        try {
+            await api.post("/Game/exit", {
+                gameId: game.gameId,
+                playerId: playerId
+            });
 
-        localStorage.removeItem("playerId");
-
-        navigate("/");
-    } catch (err) {
-        alert("Failed to exit the game.");
-        console.error(err);
-    }
-};
+            localStorage.removeItem("playerId");
+            navigate("/");
+        } catch (err) {
+            alert("Failed to exit the game.");
+            console.error(err);
+        }
+    };
 
     if (game === null) {
         return <h2>Loading game...</h2>;
     }
-     // ✅ Invalid game
+
     if (!game || !game.roomCode) {
         return (
             <div style={{ textAlign: "center", marginTop: "50px" }}>
@@ -92,16 +102,13 @@ const [moveType, setMoveType] = useState("");
                 <p>Please create a new game.</p>
 
                 <button onClick={() => navigate("/")}>
-    🔁 Create New Game
-</button>
+                    🔁 Create New Game
+                </button>
             </div>
         );
     }
 
-    // ✅ Finished game
-    if (game.status === "Finished") {
-
-    if (game.exitedPlayerId) {
+    if (game.status === "Finished" && game.exitedPlayerId) {
         return (
             <>
                 <h1>🚪 Game Ended</h1>
@@ -114,15 +121,13 @@ const [moveType, setMoveType] = useState("");
         );
     }
 
-    // Otherwise, it's a normal win
-}
-
     return (
         <div>
             <MovePopup
-    show={showPopup}
-    moveType={moveType}
-/>
+                show={showPopup}
+                message={popupMessage}
+            />
+
             <h1>🎮 Game Lobby</h1>
 
             <h2>Room: {game.roomCode}</h2>
@@ -130,60 +135,66 @@ const [moveType, setMoveType] = useState("");
             <p>Status: {game.status}</p>
 
             <hr />
+
             <h2>
-    🎯 Current Turn: {game.currentTurnPlayerName || "Loading..."}
-</h2>
+                🎯 Current Turn: {game.currentTurnPlayerName || "Loading..."}
+            </h2>
 
             <h3>Players</h3>
 
             <ul>
-    {(game.players || []).map((p) => (
-        <li
-            key={p.id}
-            style={{
-                fontWeight:
-                    p.id === game.currentTurnPlayerId ? "bold" : "normal",
-                color:
-                    p.id === game.currentTurnPlayerId ? "green" : "black"
-            }}
-        >
-            {p.name} (Position: {p.position})
-        </li>
-    ))}
-</ul>
-    <Board players={game.players} />
+                {(game.players || []).map((p) => (
+                    <li
+                        key={p.id}
+                        style={{
+                            fontWeight:
+                                p.id === game.currentTurnPlayerId
+                                    ? "bold"
+                                    : "normal",
+                            color:
+                                p.id === game.currentTurnPlayerId
+                                    ? "green"
+                                    : "black"
+                        }}
+                    >
+                        {p.name} (Position: {p.position})
+                    </li>
+                ))}
+            </ul>
+
+            <Board players={game.players} />
 
             <hr />
-            
+
             {game.status === "InProgress" ? (
-    <button
-        onClick={rollDice}
-        disabled={game.currentTurnPlayerId !== playerId}
-    >
-        🎲 Roll Dice
-    </button>
-) : (
-    <p>Game Over</p>
-)}      
-    
+                <button
+                    onClick={rollDice}
+                    disabled={game.currentTurnPlayerId !== playerId}
+                >
+                    🎲 Roll Dice
+                </button>
+            ) : (
+                <p>Game Over</p>
+            )}
+
             <p>{message}</p>
 
             <br />
-<br />
+            <br />
 
-<button
-    onClick={exitGame}
-    style={{
-        backgroundColor: "#d9534f",
-        color: "white",
-        padding: "10px 18px",
-        border: "none",
-        borderRadius: "6px",
-        cursor: "pointer"
-    }}
->
-    🚪 Exit Game
-</button>
+            <button
+                onClick={exitGame}
+                style={{
+                    backgroundColor: "#d9534f",
+                    color: "white",
+                    padding: "10px 18px",
+                    border: "none",
+                    borderRadius: "6px",
+                    cursor: "pointer"
+                }}
+            >
+                🚪 Exit Game
+            </button>
         </div>
     );
 }

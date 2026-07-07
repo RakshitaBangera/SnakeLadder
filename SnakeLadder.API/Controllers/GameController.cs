@@ -148,7 +148,9 @@ public IActionResult GetGameState(string roomCode)
         CurrentTurnPlayerName = currentTurnPlayerName, // 🔥 THIS WAS MISSING
         WinnerId = game.WinnerId,
         Players = players,
-        ExitedPlayerId = game.ExitedPlayerId
+        ExitedPlayerId = game.ExitedPlayerId,
+        LastEventId = game.LastEventId,
+        LastEventMessage = game.LastEventMessage,
     };
 
     return Ok(response);
@@ -162,19 +164,19 @@ public IActionResult RollDice([FromBody] RollDiceRequest request)
     if (game == null)
     {
         return NotFound(new
-{
-    Success = false,
-    Message = "Game not found."
-});
+    {
+            Success = false,
+            Message = "Game not found."
+        });
     }
     if (game.Status == "Finished")
-{
-    return BadRequest(new
     {
-        Success = false,
-        Message = "The game has already finished."
-    });
-}
+        return BadRequest(new
+        {
+            Success = false,
+            Message = "The game has already finished."
+        });
+    }
 
     var player = _context.Players.FirstOrDefault(p =>
         p.Id == request.PlayerId &&
@@ -183,36 +185,41 @@ public IActionResult RollDice([FromBody] RollDiceRequest request)
     if (player == null)
     {
         return NotFound(new
-{
-    Success = false,
-    Message = "Player not found."
-});
+    {
+        Success = false,
+        Message = "Player not found."
+    });
     }
 
     if (game.CurrentTurnPlayerId != player.Id)
     {
         return BadRequest(new
-{
-    Success = false,
-    Message = "It is not your turn."
-});
+    {
+        Success = false,
+        Message = "It is not your turn."
+    });
     }
 
     var dice = Random.Shared.Next(1, 7);
     var oldPosition = player.Position;
-var newPosition = oldPosition + dice;
+    var newPosition = oldPosition + dice;
 
-// Player must land exactly on 100
-if (newPosition > 100)
-{
-    newPosition = oldPosition;
-}
+    // Player must land exactly on 100
+    if (newPosition > 100)
+    {
+        newPosition = oldPosition;
+    }
 
-// Check for snake or ladder
-string moveType = "Normal";
+    // Check for snake or ladder
+    string moveType = "Normal";
+
+int snakeOrLadderStart = newPosition;
+int snakeOrLadderEnd = newPosition;
 
 if (Board.SnakesAndLadders.TryGetValue(newPosition, out var finalPosition))
 {
+    snakeOrLadderEnd = finalPosition;
+
     if (finalPosition > newPosition)
     {
         moveType = "Ladder";
@@ -225,12 +232,12 @@ if (Board.SnakesAndLadders.TryGetValue(newPosition, out var finalPosition))
     newPosition = finalPosition;
 }
 
-player.Position = newPosition;
-if (newPosition == 100)
-{
-    game.Status = "Finished";
-    game.WinnerId = player.Id;
-}
+    player.Position = newPosition;
+    if (newPosition == 100)
+    {
+        game.Status = "Finished";
+        game.WinnerId = player.Id;
+    }
     var move = new Move
     {
         Id = Guid.NewGuid(),
@@ -244,30 +251,52 @@ if (newPosition == 100)
 
     _context.Moves.Add(move);
     // Change turn only if the game is still running
-// and the player didn't roll a 6
-if (game.Status != "Finished" && dice != 6)
-{
-    var otherPlayer = _context.Players.FirstOrDefault(p =>
-        p.GameId == game.Id &&
-        p.Id != player.Id);
-
-    if (otherPlayer != null)
+    // and the player didn't roll a 6
+    if (game.Status != "Finished" && dice != 6)
     {
-        game.CurrentTurnPlayerId = otherPlayer.Id;
+        var otherPlayer = _context.Players.FirstOrDefault(p =>
+            p.GameId == game.Id &&
+            p.Id != player.Id);
+
+        if (otherPlayer != null)
+        {
+            game.CurrentTurnPlayerId = otherPlayer.Id;
+        }
     }
+    if (moveType == "Ladder")
+{
+    game.LastEventMessage =
+        $"🪜 {player.Name} climbed a ladder from {snakeOrLadderStart} → {snakeOrLadderEnd}";
 }
+else if (moveType == "Snake")
+{
+    game.LastEventMessage =
+        $"🐍 {player.Name} was swallowed by a snake from {snakeOrLadderStart} → {snakeOrLadderEnd}";
+}
+else if (game.Status == "Finished")
+{
+    game.LastEventMessage =
+        $"🏆 {player.Name} won the game!";
+}
+else
+{
+    game.LastEventMessage =
+        $"🎲 {player.Name} rolled a {dice}";
+}
+
+game.LastEventId = Guid.NewGuid();
     _context.SaveChanges();
     
-    var response = new RollDiceResponse
-{
-    Dice = dice,
-    OldPosition = oldPosition,
-    NewPosition = newPosition,
-    NextPlayerId = game.CurrentTurnPlayerId ?? Guid.Empty,
-    GameStatus = game.Status,
-    MoveType = moveType
-};
-        string message;
+        var response = new RollDiceResponse
+    {
+        Dice = dice,
+        OldPosition = oldPosition,
+        NewPosition = newPosition,
+        NextPlayerId = game.CurrentTurnPlayerId ?? Guid.Empty,
+        GameStatus = game.Status,
+        MoveType = moveType
+    };
+     string message;
 
 if (game.Status == "Finished")
 {
@@ -275,11 +304,9 @@ if (game.Status == "Finished")
 }
 else if (oldPosition == newPosition && dice + oldPosition > 100)
 {
-    message = "You need an exact roll to reach 100.";
+    message = "🎯 You need an exact roll to reach 100.";
 }
-else
-{
-    if (dice == 6 && game.Status != "Finished")
+else if (dice == 6)
 {
     message = "🎲 You rolled a 6! Play again.";
 }
@@ -287,13 +314,12 @@ else
 {
     message = $"🎲 You rolled a {dice}.";
 }
-}
         return Ok(new
-{
-    Success = true,
-    Message = message,
-    Data = response
-});
+    {
+        Success = true,
+        Message = message,
+        Data = response
+    });
 
 }
 [HttpPost("exit")]

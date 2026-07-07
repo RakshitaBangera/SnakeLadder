@@ -1,34 +1,25 @@
-function MovePopup({ show, moveType }) {
-    if (!show) return null;
-
-    let title = "";
-    let message = "";
-
-    if (moveType === "Snake") {
-        title = "🐍 Snake!";
-        message = "Oops! A snake swallowed you!";
-    } else if (moveType === "Ladder") {
-        title = "🪜 Ladder!";
-        message = "Awesome! You climbed a ladder!";
-    }
+function MovePopup({ show, message }) {
+    if (!show || !message) return null;
 
     return (
         <div
             style={{
                 position: "fixed",
-                top: "50%",
+                top: "30px",
                 left: "50%",
-                transform: "translate(-50%, -50%)",
-                background: "white",
-                padding: "25px 35px",
+                transform: "translateX(-50%)",
+                background: "#222",
+                color: "white",
+                padding: "16px 28px",
                 borderRadius: "12px",
-                boxShadow: "0 5px 15px rgba(0,0,0,0.3)",
-                textAlign: "center",
-                zIndex: 1000
+                boxShadow: "0 6px 18px rgba(0,0,0,0.35)",
+                fontSize: "18px",
+                fontWeight: "600",
+                zIndex: 1000,
+                animation: "fadeIn .3s ease"
             }}
         >
-            <h2>{title}</h2>
-            <p>{message}</p>
+            {message}
         </div>
     );
 }

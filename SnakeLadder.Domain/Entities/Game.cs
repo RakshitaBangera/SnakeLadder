@@ -10,6 +10,9 @@ public class Game
     public string Status { get; set; } = string.Empty;
 
     public Guid? WinnerId { get; set; }
+    public string? LastEventMessage { get; set; }
+
+    public Guid? LastEventId { get; set; }
 
     public Guid? CurrentTurnPlayerId { get; set; }
 

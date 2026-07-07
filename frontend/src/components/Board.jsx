@@ -2,11 +2,8 @@ import boardImage from "../assets/board.png";
 
 const BOARD_SIZE = 620;
 
-// Blue border around the board
-const GRID_OFFSET = 13;
-
-// Actual playable area
-const GRID_SIZE = 594;
+const GRID_OFFSET = 16;
+const GRID_SIZE = 589;
 
 const CELL_SIZE = GRID_SIZE / 10;
 
@@ -31,8 +28,8 @@ function Board({ players }) {
         <div
             style={{
                 position: "relative",
-                width: "620px",
-height: "620px",
+                width: BOARD_SIZE,
+height: BOARD_SIZE,
                 backgroundImage: `url(${boardImage})`,
                 backgroundSize: "100% 100%",
 backgroundRepeat: "no-repeat",
@@ -53,10 +50,10 @@ const tokenOffset =
                         key={player.id}
                         style={{
                             position: "absolute",
-                            left: left - 15 + tokenOffset.x,
-top: top - 15 + tokenOffset.y,
-                            width: 30,
-                            height: 30,
+                            left: left - 13 + tokenOffset.x,
+top: top - 13 + tokenOffset.y,
+                            width: 26,
+height: 26,
                             borderRadius: "50%",
                             backgroundColor:
                                 player.playerOrder === 1 ? "#ff3b30" : "#007aff",

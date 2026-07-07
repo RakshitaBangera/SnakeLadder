@@ -13,6 +13,9 @@ public class GameStateResponse
     public Guid? WinnerId { get; set; }
     public string? CurrentTurnPlayerName { get; set; }
     public Guid? ExitedPlayerId { get; set; }
+    public string? LastEventMessage { get; set; }
+
+   public Guid? LastEventId { get; set; }
 
     public List<PlayerResponse> Players { get; set; } = new();
 }
