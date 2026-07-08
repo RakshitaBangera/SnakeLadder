@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import api from "../api/gameApi";
-import { useNavigate } from "react-router-dom";
+import "./CreateGame.css";
 
 function JoinGame() {
     const { roomCode: urlRoomCode } = useParams();
@@ -9,6 +9,7 @@ function JoinGame() {
     const [playerName, setPlayerName] = useState("");
     const [roomCode, setRoomCode] = useState("");
     const [message, setMessage] = useState("");
+
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -24,13 +25,14 @@ function JoinGame() {
                 roomCode
             });
 
-            
-            setMessage(response.data.message);
             localStorage.setItem("playerId", response.data.playerId);
 
-setTimeout(() => {
-    navigate(`/game/${roomCode}`);
-}, 800);
+            setMessage("✅ Joined successfully!");
+
+            setTimeout(() => {
+                navigate(`/game/${roomCode}`);
+            }, 800);
+
         } catch (error) {
             if (error.response) {
                 setMessage(error.response.data);
@@ -41,37 +43,60 @@ setTimeout(() => {
     };
 
     return (
-        <div>
-            <h2>Join Game</h2>
+        <div className="create-page">
 
-            <input
-                type="text"
-                placeholder="Enter your name"
-                value={playerName}
-                onChange={(e) => setPlayerName(e.target.value)}
-            />
+            <div className="create-card">
 
-            <br /><br />
+                <h1 className="create-title">
+                    🎲 Snake & Ladder
+                </h1>
 
-            <input
-                type="text"
-                placeholder="Room Code"
-                value={roomCode}
-                onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
-            />
+                <p className="create-subtitle">
+                    Join your friend's game
+                </p>
 
-            <br /><br />
+                <input
+                    className="name-input"
+                    type="text"
+                    placeholder="Enter your name"
+                    value={playerName}
+                    onChange={(e) => setPlayerName(e.target.value)}
+                />
 
-            <button onClick={joinGame}>
-                Join Room
-            </button>
+                <br /><br />
 
-            {message && (
-                <>
-                    <br /><br />
-                    <strong>{message}</strong>
-                </>
-            )}
+                <input
+                    className="name-input"
+                    type="text"
+                    placeholder="Room Code"
+                    value={roomCode}
+                    onChange={(e) =>
+                        setRoomCode(e.target.value.toUpperCase())
+                    }
+                />
+
+                <button
+                    className="create-btn"
+                    onClick={joinGame}
+                >
+                    🚪 Join Room
+                </button>
+
+                {message && (
+                    <div
+                        style={{
+                            marginTop: "25px",
+                            color: "#39d353",
+                            fontSize: "18px",
+                            fontWeight: "bold"
+                        }}
+                    >
+                        {message}
+                    </div>
+                )}
+
+            </div>
+
         </div>
     );
 }

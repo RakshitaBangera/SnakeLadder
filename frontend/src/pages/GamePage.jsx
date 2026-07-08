@@ -4,6 +4,7 @@ import api from "../api/gameApi";
 import MovePopup from "../components/MovePopup";
 import Board from "../components/Board";
 import "./GamePage.css";
+import GameOverPopup from "../components/GameOverPopup";
 
 function GamePage() {
     const { roomCode } = useParams();
@@ -23,26 +24,33 @@ function GamePage() {
         const res = await api.get(`/Game/${roomCode}`);
 
         setGame(res.data);
-
+        console.log("Fetch:", res.data.lastEventId, res.data.lastEventMessage);
         // First time loading the page
         if (lastSeenEventId.current === null) {
             lastSeenEventId.current = res.data.lastEventId;
             return;
         }
 
-        if (
-            res.data.lastEventId &&
-            res.data.lastEventId !== lastSeenEventId.current
-        ) {
-            lastSeenEventId.current = res.data.lastEventId;
+      if (
+    res.data.lastEventId &&
+    res.data.lastEventId !== lastSeenEventId.current
+) {
+    console.log(
+        "New Event",
+        lastSeenEventId.current,
+        "->",
+        res.data.lastEventId
+    );
 
-            setPopupMessage(res.data.lastEventMessage);
-            setShowPopup(true);
+    lastSeenEventId.current = res.data.lastEventId;
 
-            setTimeout(() => {
-                setShowPopup(false);
-            }, 4500);
-        }
+    setPopupMessage(res.data.lastEventMessage);
+    setShowPopup(true);
+
+    setTimeout(() => {
+        setShowPopup(false);
+    }, 4500);
+}
     } catch (err) {
         console.error(err);
     }
@@ -55,7 +63,18 @@ function GamePage() {
 
         return () => clearInterval(interval);
     }, [roomCode]);
+    useEffect(() => {
+    console.log("Started polling");
 
+    fetchGame();
+
+    const interval = setInterval(fetchGame, 2000);
+
+    return () => {
+        console.log("Stopped polling");
+        clearInterval(interval);
+    };
+}, [roomCode]);
     const rollDice = async () => {
         if (!game) return;
 
@@ -64,10 +83,44 @@ function GamePage() {
                 gameId: game.gameId,
                 playerId: playerId
             });
-
+            console.log(res.data);
             setMessage(res.data.message);
+            const move = res.data.data;
 
-            fetchGame();
+let popup = "";
+
+if (move.moveType === "Snake") {
+    popup = `🐍 You were swallowed by a snake!`;
+}
+else if (move.moveType === "Ladder") {
+    popup = `🪜 You climbed a ladder!`;
+}
+else if (move.gameStatus === "Finished") {
+    popup = "🏆 You won the game!";
+}
+else if (move.dice === 6) {
+    popup = `🎲 You rolled a 6! Play again!`;
+}
+else {
+    popup = `🎲 You rolled a ${move.dice}!`;
+}
+
+setPopupMessage(popup);
+setShowPopup(true);
+
+setTimeout(() => {
+    setShowPopup(false);
+}, 4500);
+
+fetchGame();
+     
+
+setTimeout(fetchGame, 300);
+            
+
+
+
+            
         } catch (err) {
             setMessage(err.response?.data?.message || "Error rolling dice");
         }
@@ -162,7 +215,11 @@ function GamePage() {
         </div>
     );
 }
+    const winner =
+    game?.players?.find(p => p.id === game?.winnerId);
 
+const loser =
+    game?.players?.find(p => p.id !== game?.winnerId);
     return (
         <div className="game-page">
 
@@ -170,6 +227,15 @@ function GamePage() {
                 show={showPopup}
                 message={popupMessage}
             />
+            <GameOverPopup
+    show={game?.status === "Finished" && !game?.exitedPlayerId}
+    winnerName={winner?.name}
+    loserName={loser?.name}
+    onExit={() => {
+        localStorage.removeItem("playerId");
+        navigate("/");
+    }}
+/>
 
             <h1 className="game-title">
                 🎮 Snake & Ladder

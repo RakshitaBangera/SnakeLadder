@@ -278,6 +278,11 @@ else if (game.Status == "Finished")
     game.LastEventMessage =
         $"🏆 {player.Name} won the game!";
 }
+else if (dice == 6)
+{
+    game.LastEventMessage =
+        $"🎲 {player.Name} rolled a 6! Play again!";
+}
 else
 {
     game.LastEventMessage =
