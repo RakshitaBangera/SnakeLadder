@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../api/gameApi";
 import MovePopup from "../components/MovePopup";
@@ -14,33 +14,39 @@ function GamePage() {
 
     const [showPopup, setShowPopup] = useState(false);
     const [popupMessage, setPopupMessage] = useState("");
-    const [lastSeenEventId, setLastSeenEventId] = useState(null);
+    const lastSeenEventId = useRef(null);
 
     const playerId = localStorage.getItem("playerId");
 
     const fetchGame = async () => {
-        try {
-            const res = await api.get(`/Game/${roomCode}`);
+    try {
+        const res = await api.get(`/Game/${roomCode}`);
 
-            setGame(res.data);
+        setGame(res.data);
 
-            if (
-                res.data.lastEventId &&
-                res.data.lastEventId !== lastSeenEventId
-            ) {
-                setPopupMessage(res.data.lastEventMessage);
-                setShowPopup(true);
-
-                setLastSeenEventId(res.data.lastEventId);
-
-                setTimeout(() => {
-                    setShowPopup(false);
-                }, 4500);
-            }
-        } catch (err) {
-            console.error(err);
+        // First time loading the page
+        if (lastSeenEventId.current === null) {
+            lastSeenEventId.current = res.data.lastEventId;
+            return;
         }
-    };
+
+        if (
+            res.data.lastEventId &&
+            res.data.lastEventId !== lastSeenEventId.current
+        ) {
+            lastSeenEventId.current = res.data.lastEventId;
+
+            setPopupMessage(res.data.lastEventMessage);
+            setShowPopup(true);
+
+            setTimeout(() => {
+                setShowPopup(false);
+            }, 4500);
+        }
+    } catch (err) {
+        console.error(err);
+    }
+};
 
     useEffect(() => {
         fetchGame();
