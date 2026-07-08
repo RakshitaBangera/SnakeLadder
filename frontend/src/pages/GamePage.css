@@ -80,13 +80,41 @@
 }
 
 .exit-button {
-    width: 220px;
-    height: 65px;
-    border: none;
-    border-radius: 14px;
+    display: block;
+    margin: 12px auto 0;
+
+    width: 170px;
+    height: 46px;
+
     background: #d83d3d;
     color: white;
-    font-size: 24px;
+
+    border: none;
+    border-radius: 12px;
+
+    font-size: 17px;
     font-weight: bold;
+
     cursor: pointer;
+    transition: 0.2s;
+}
+
+.exit-button:hover {
+    background: #b52c2c;
+    transform: translateY(-2px);
+}
+
+.game-ended-title {
+    color: white;
+    margin: 0;
+    margin-bottom: 30px;
+    font-size: 48px;
+}
+
+.game-ended-subtitle {
+    color: #d0d0d0;
+    margin: 0;
+    margin-bottom: 45px;
+    font-size: 24px;
+    font-weight: normal;
 }

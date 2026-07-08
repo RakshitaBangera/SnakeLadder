@@ -40,7 +40,7 @@ public class GameController : ControllerBase
             Id = Guid.NewGuid(),
             GameId = game.Id,
             Name = request.PlayerName,
-            Position = 0,
+            Position = 1,
             PlayerOrder = 1
         };
 
@@ -89,7 +89,7 @@ public class GameController : ControllerBase
             Id = Guid.NewGuid(),
             GameId = game.Id,
             Name = request.PlayerName,
-            Position = 0,
+            Position = 1,
             PlayerOrder = playerCount + 1
         };
 

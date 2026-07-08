@@ -112,17 +112,56 @@ function GamePage() {
     }
 
     if (game.status === "Finished" && game.exitedPlayerId) {
-        return (
-            <>
-                <h1>🚪 Game Ended</h1>
-                <h2>The other player left the game.</h2>
+    return (
+        <div
+            style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                height: "100vh",
+                background: "#101114",
+                color: "white"
+            }}
+        >
+            <h1
+    style={{
+        color: "white",
+        marginBottom: "30px"
+    }}
+>
+    Game Ended
+</h1>
 
-                <button onClick={() => navigate("/")}>
-                    Create New Game
-                </button>
-            </>
-        );
-    }
+<h2
+    style={{
+        color: "#d0d0d0",
+        fontWeight: "normal",
+        marginBottom: "45px"
+    }}
+>
+ The other player left the game.
+</h2>
+
+            <button
+                onClick={() => navigate("/")}
+                style={{
+                    marginTop: "20px",
+                    padding: "12px 24px",
+                    background: "#2ea043",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "10px",
+                    fontSize: "18px",
+                    fontWeight: "bold",
+                    cursor: "pointer"
+                }}
+            >
+                🔄 Play Again
+            </button>
+        </div>
+    );
+}
 
     return (
         <div className="game-page">
@@ -191,29 +230,19 @@ function GamePage() {
                     >
                         🎲 Roll Dice
                     </button>
+                    <button
+                        className="exit-button"
+                        onClick={exitGame}
+                    >
+                        🚪 Exit Game
+                    </button>
 
                 </div>
 
             </div>
 
-            <div className="exit-container">
-                <button
-                    className="exit-button"
-                    onClick={exitGame}
-                >
-                    🚪 Exit Game
-                </button>
-            </div>
-
-            <div
-                style={{
-                    marginTop: "25px",
-                    textAlign: "center",
-                    fontSize: "22px"
-                }}
-            >
-                {message}
-            </div>
+           
+            
 
         </div>
     );

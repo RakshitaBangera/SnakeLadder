@@ -1,6 +1,7 @@
 import { useState } from "react";
 import api from "../api/gameApi";
 import { useNavigate } from "react-router-dom";
+import "./CreateGame.css";
 
 function CreateGame() {
     const [playerName, setPlayerName] = useState("");
@@ -31,53 +32,71 @@ function CreateGame() {
     };
 
     return (
-        <div>
-            <h2>Create Game</h2>
+    <div className="create-page">
+
+        <div className="create-card">
+
+            <h1 className="create-title">
+                🎲 Snake & Ladder
+            </h1>
+
+            <p className="create-subtitle">
+                Challenge your friends online
+            </p>
 
             <input
+                className="name-input"
                 type="text"
                 placeholder="Enter your name"
                 value={playerName}
                 onChange={(e) => setPlayerName(e.target.value)}
             />
 
-            <br /><br />
-
-            <button onClick={createGame}>
-                Create Room
+            <button
+                className="create-btn"
+                onClick={createGame}
+            >
+                🎮 Create Room
             </button>
 
             {game && (
-                <div style={{ marginTop: "20px" }}>
-                    <h3>🎮 Room Created</h3>
+                <div className="room-box">
 
-                    <p><b>Room Code:</b> {game.roomCode}</p>
+                    <h3>🎉 Room Created</h3>
 
                     <p>
-                        <b>Invite Link:</b><br />
+                        <b>Room Code:</b> {game.roomCode}
+                    </p>
+
+                    <p>
+                        <b>Invite Link</b>
+                    </p>
+
+                    <p>
                         {`${window.location.origin}/join/${game.roomCode}`}
                     </p>
 
-                    <button onClick={copyLink}>
+                    <button
+                        className="copy-btn"
+                        onClick={copyLink}
+                    >
                         📋 Copy Invite Link
                     </button>
+
+                    <button
+                        className="start-btn"
+                        onClick={() => navigate(`/game/${game.roomCode}`)}
+                    >
+                        🚀 Start Game
+                    </button>
+
                 </div>
             )}
-            <button
-    onClick={() => navigate(`/game/${game.roomCode}`)}
-    style={{
-        marginTop: "10px",
-        padding: "10px",
-        backgroundColor: "green",
-        color: "white",
-        border: "none",
-        cursor: "pointer"
-    }}
->
-    🚀 Start Game
-</button>
+
         </div>
-    );
+
+    </div>
+);
 }
 
 export default CreateGame;

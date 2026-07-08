@@ -8,7 +8,12 @@ const GRID_SIZE = 522;
 const CELL_SIZE = GRID_SIZE / 10;
 
 function getCellCoordinates(position) {
-    if (position <= 0) position = 1;
+    if (position === 0) {
+    return {
+        left: -25,
+        top: BOARD_SIZE - 35
+    };
+}
 
     const row = Math.floor((position - 1) / 10);
     let col = (position - 1) % 10;
