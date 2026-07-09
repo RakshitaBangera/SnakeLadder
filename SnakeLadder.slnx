@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="SnakeLadder.API/SnakeLadder.API.csproj" />
+  <Project Path="SnakeLadder.Application/SnakeLadder.Application.csproj" />
+  <Project Path="SnakeLadder.Domain/SnakeLadder.Domain.csproj" />
+  <Project Path="SnakeLadder.Infrastructure/SnakeLadder.Infrastructure.csproj" />
+</Solution>
