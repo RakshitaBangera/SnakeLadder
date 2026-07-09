@@ -24,7 +24,7 @@ function GamePage() {
         const res = await api.get(`/Game/${roomCode}`);
 
         setGame(res.data);
-        console.log("Fetch:", res.data.lastEventId, res.data.lastEventMessage);
+        
         // First time loading the page
         if (lastSeenEventId.current === null) {
             lastSeenEventId.current = res.data.lastEventId;
@@ -35,12 +35,7 @@ function GamePage() {
     res.data.lastEventId &&
     res.data.lastEventId !== lastSeenEventId.current
 ) {
-    console.log(
-        "New Event",
-        lastSeenEventId.current,
-        "->",
-        res.data.lastEventId
-    );
+   
 
     lastSeenEventId.current = res.data.lastEventId;
 
@@ -64,14 +59,14 @@ function GamePage() {
         return () => clearInterval(interval);
     }, [roomCode]);
     useEffect(() => {
-    console.log("Started polling");
+   
 
     fetchGame();
 
     const interval = setInterval(fetchGame, 2000);
 
     return () => {
-        console.log("Stopped polling");
+      
         clearInterval(interval);
     };
 }, [roomCode]);
@@ -83,7 +78,7 @@ function GamePage() {
                 gameId: game.gameId,
                 playerId: playerId
             });
-            console.log(res.data);
+           
             setMessage(res.data.message);
             const move = res.data.data;
 
