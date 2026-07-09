@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import api from "../api/gameApi";
 import { useNavigate } from "react-router-dom";
 import "./CreateGame.css";
@@ -7,7 +7,25 @@ function CreateGame() {
     const [playerName, setPlayerName] = useState("");
     const [game, setGame] = useState(null);
     const navigate = useNavigate();
+    const [canStart, setCanStart] = useState(false);
+    useEffect(() => {
+    if (!game) return;
 
+    const interval = setInterval(async () => {
+        try {
+            const res = await api.get(`/Game/${game.roomCode}`);
+
+            if (res.data.players.length === 2) {
+                setCanStart(true);
+                clearInterval(interval);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }, 2000);
+
+    return () => clearInterval(interval);
+}, [game]);
     const createGame = async () => {
         try {
             const response = await api.post("/Game/create", {
@@ -82,13 +100,33 @@ function CreateGame() {
                     >
                         📋 Copy Invite Link
                     </button>
+                    {!canStart && (
+            <p
+                style={{
+                    color: "#ccc",
+                    marginTop: "15px",
+                    fontSize: "16px"
+                }}
+            >
+                ⏳ Waiting for another player to join...
+            </p>
+        )}
 
                     <button
-                        className="start-btn"
-                        onClick={() => navigate(`/game/${game.roomCode}`)}
-                    >
-                        🚀 Start Game
-                    </button>
+    onClick={() => navigate(`/game/${game.roomCode}`)}
+    disabled={!canStart}
+    style={{
+        marginTop: "10px",
+        padding: "10px",
+        backgroundColor: canStart ? "green" : "gray",
+        color: "white",
+        border: "none",
+        cursor: canStart ? "pointer" : "not-allowed",
+        opacity: canStart ? 1 : 0.7
+    }}
+>
+    🚀 Start Game
+</button>
 
                 </div>
             )}
