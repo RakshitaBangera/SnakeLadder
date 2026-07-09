@@ -70,12 +70,14 @@ function CreateGame() {
                 onChange={(e) => setPlayerName(e.target.value)}
             />
 
+            
             <button
-                className="create-btn"
-                onClick={createGame}
-            >
-                🎮 Create Room
-            </button>
+    className="create-btn"
+    onClick={createGame}
+    disabled={!playerName.trim()}
+>
+    🎮 Create Room
+</button>
 
             {game && (
                 <div className="room-box">

@@ -31,12 +31,23 @@ body{
     z-index:5;
 }
 
-.create-title{
-    color:white;
+.create-title {
+    color: white;
+    font-size: 48px;
+    text-align: center;
+    margin-bottom: 10px;
+}
 
-    font-size:48px;
+@media (max-width: 768px) {
+    .create-title {
+        font-size: 34px;
+    }
+}
 
-    margin-bottom:10px;
+@media (max-width: 480px) {
+    .create-title {
+        font-size: 28px;
+    }
 }
 
 .create-subtitle{
@@ -161,4 +172,8 @@ body{
     font-weight:bold;
 
     cursor:pointer;
+}
+    .create-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }

@@ -1,9 +1,16 @@
 import boardImage from "../assets/board.png";
 
-const BOARD_SIZE = 540;
+const MAX_BOARD_SIZE = 540;
 
-const GRID_OFFSET = 9;
-const GRID_SIZE = 522;
+const boardSize = Math.min(
+    MAX_BOARD_SIZE,
+    window.innerWidth < 600
+        ? window.innerWidth - 30
+        : MAX_BOARD_SIZE
+);
+
+const GRID_OFFSET = boardSize * (9 / 540);
+const GRID_SIZE = boardSize * (522 / 540);
 
 const CELL_SIZE = GRID_SIZE / 10;
 
@@ -33,8 +40,8 @@ function Board({ players }) {
         <div
             style={{
                 position: "relative",
-                width: BOARD_SIZE,
-height: BOARD_SIZE,
+               width: boardSize,
+height: boardSize,
                 backgroundImage: `url(${boardImage})`,
                 backgroundSize: "100% 100%",
 backgroundRepeat: "no-repeat",
