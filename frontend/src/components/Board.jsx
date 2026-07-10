@@ -14,6 +14,8 @@ const GRID_SIZE = boardSize * (522 / 540);
 
 const CELL_SIZE = GRID_SIZE / 10;
 
+const TOKEN_SIZE = window.innerWidth < 600 ? 18 : 26;
+
 function getCellCoordinates(position) {
     if (position === 0) {
     return {
@@ -51,21 +53,23 @@ backgroundPosition: "center",
         >
             {players?.map((player) => {
                 const { left, top } = getCellCoordinates(player.position);
+const OFFSET = window.innerWidth < 600 ? 6 : 10;
 
 const tokenOffset =
     player.playerOrder === 1
-        ? { x: -10, y: -10 }
-        : { x: 10, y: 10 };
+        ? { x: -OFFSET, y: -OFFSET }
+        : { x: OFFSET, y: OFFSET };
+
 
                 return (
                     <div
                         key={player.id}
                         style={{
                             position: "absolute",
-                            left: left - 13 + tokenOffset.x,
-top: top - 13 + tokenOffset.y,
-                            width: 26,
-height: 26,
+                            left: left - TOKEN_SIZE / 2 + tokenOffset.x,
+top: top - TOKEN_SIZE / 2 + tokenOffset.y,
+                            width: TOKEN_SIZE,
+height: TOKEN_SIZE,
                             borderRadius: "50%",
                             backgroundColor:
                                 player.playerOrder === 1 ? "#ff3b30" : "#007aff",
