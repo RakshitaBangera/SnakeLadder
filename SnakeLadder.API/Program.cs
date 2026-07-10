@@ -32,4 +32,12 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+app.MapGet("/", () => Results.Ok(new
+{
+    Status = "Running",
+    Service = "Snake & Ladder API"
+}));
+
+app.Run();
+
 app.Run();
