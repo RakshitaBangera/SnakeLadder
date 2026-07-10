@@ -25,6 +25,8 @@ public class GameController : ControllerBase
     [HttpPost("create")]
     public IActionResult CreateGame([FromBody] CreateGameRequest request)
     {
+        try
+    {
         var game = new Game
         {
             Id = Guid.NewGuid(),
@@ -58,6 +60,15 @@ public class GameController : ControllerBase
         };
 
         return Ok(response);
+        }
+    catch (Exception ex)
+    {
+        return StatusCode(500, new
+        {
+            message = ex.Message,
+            stack = ex.StackTrace
+        });
+    }
     }
 
     [HttpPost("join")]

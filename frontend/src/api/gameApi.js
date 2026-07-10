@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: "http://localhost:5075/api"
+    baseURL: "https://snake-ladder-api-fvyf.onrender.com/api"
 });
 
 export default api;
