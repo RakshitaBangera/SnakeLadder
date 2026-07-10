@@ -65,8 +65,7 @@ public class GameController : ControllerBase
     {
         return StatusCode(500, new
         {
-            message = ex.Message,
-            stack = ex.StackTrace
+             message = "Something went wrong."
         });
     }
     }
