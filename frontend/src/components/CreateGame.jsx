@@ -8,6 +8,10 @@ function CreateGame() {
     const [game, setGame] = useState(null);
     const navigate = useNavigate();
     const [canStart, setCanStart] = useState(false);
+    const [joinPlayerName, setJoinPlayerName] = useState("");
+    const [roomCode, setRoomCode] = useState("");
+    
+
     useEffect(() => {
     if (!game) return;
 
@@ -48,7 +52,22 @@ function CreateGame() {
         navigator.clipboard.writeText(link);
         alert("Link copied!");
     };
+    const joinRoom = async () => {
+    try {
+        const response = await api.post("/Game/join", {
+    playerName: joinPlayerName,
+    roomCode: roomCode.toUpperCase()
+});
 
+        localStorage.setItem("playerId", response.data.playerId);
+
+        navigate(`/game/${roomCode.toUpperCase()}`);
+    }
+    catch (err) {
+        alert(err.response?.data || "Unable to join room.");
+    }
+};
+    
     return (
     <div className="create-page">
 
@@ -78,6 +97,7 @@ function CreateGame() {
 >
     🎮 Create Room
 </button>
+
 
             {game && (
                 <div className="room-box">
@@ -132,8 +152,37 @@ function CreateGame() {
 
                 </div>
             )}
+            {!game && (
+    <>
+            <div className="divider">
+                        <span>OR</span>
+            </div>
+                <input
+    className="join-input"
+    type="text"
+    placeholder="Enter your name"
+    value={joinPlayerName}
+    onChange={(e) => setJoinPlayerName(e.target.value)}
+/>
+            <input
+                className="name-input"
+                type="text"
+                placeholder="Enter Room Code"
+                value={roomCode}
+                onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
+            />
 
-        </div>
+            <button
+                className="join-btn"
+                onClick={joinRoom}
+                disabled={!joinPlayerName.trim() || !roomCode.trim()}
+            >
+                🚪 Join Room
+            </button>
+            </>
+)}
+
+                    </div>
 
     </div>
 );
