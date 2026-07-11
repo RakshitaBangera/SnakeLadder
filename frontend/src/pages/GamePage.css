@@ -14,39 +14,52 @@
     font-weight: 700;
 }
 
+/* ===========================
+   DESKTOP LAYOUT
+=========================== */
+
 .main-container {
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    gap: 30px;
+    gap: 24px;
 }
 
 .right-panel {
-    width: 300px;
+    width: 480px;
     display: flex;
     flex-direction: column;
     gap: 18px;
-    
 }
 
+/* ===========================
+   PLAYER GRID
+=========================== */
+
+.player-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
 
 .player-card {
     background: #1c1e25;
     border-radius: 16px;
-    padding: 20px;
-    box-shadow: 0 8px 20px rgba(0,0,0,.35);
+    padding: 16px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, .35);
+    box-sizing: border-box;
 }
 
-.player-card h2{
-    color:#fff;
-    margin:0 0 14px;
-    font-size:34px;
-    font-weight:700;
+.player-card h2 {
+    margin: 0 0 14px;
+    font-size: 22px;
+    color: white;
 }
 
-.player-card p{
-    color:#fff;
-    font-size:20px;
+.player-card p {
+    margin: 8px 0;
+    font-size: 16px;
+    color: white;
 }
 
 .turn {
@@ -54,18 +67,32 @@
     font-weight: bold;
 }
 
-/* Roll Dice Button */
+/* ===========================
+   GAME GRID
+=========================== */
+
+.game-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    align-items: stretch;
+}
 
 .roll-button {
-    width: 100%;
-    height: 65px;
     border: none;
-    border-radius: 14px;
-    font-size: 24px;
-    font-weight: bold;
-    cursor: pointer;
+    border-radius: 16px;
+    min-height: 90px;
     background: #2ea043;
     color: white;
+    font-size: 22px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.roll-button:hover:not(:disabled) {
+    background: #38b84e;
+    transform: translateY(-2px);
 }
 
 .roll-button:disabled {
@@ -73,30 +100,18 @@
     cursor: not-allowed;
 }
 
-/* Exit Button */
-
-.exit-container {
-    margin-top: 20px;
-}
-
 .exit-button {
-    display: block;
-    margin: 12px auto 0;
-
-    width: 170px;
-    height: 46px;
-
-    background: #d83d3d;
-    color: white;
-
+    width: 180px;
+    height: 50px;
+    margin: 10px auto 0;
     border: none;
     border-radius: 12px;
-
-    font-size: 17px;
+    background: #d83d3d;
+    color: white;
+    font-size: 18px;
     font-weight: bold;
-
     cursor: pointer;
-    transition: 0.2s;
+    transition: .2s;
 }
 
 .exit-button:hover {
@@ -104,74 +119,142 @@
     transform: translateY(-2px);
 }
 
+/* ===========================
+   GAME ENDED SCREEN
+=========================== */
+
 .game-ended-title {
     color: white;
-    margin: 0;
     margin-bottom: 30px;
     font-size: 48px;
 }
 
 .game-ended-subtitle {
     color: #d0d0d0;
-    margin: 0;
     margin-bottom: 45px;
     font-size: 24px;
     font-weight: normal;
 }
 
 /* ===========================
-   MOBILE RESPONSIVE
+   MOBILE
 =========================== */
 
 @media (max-width: 900px) {
 
-    .game-page{
-        padding:15px;
+    .game-page {
+        padding: 12px;
     }
-
-    @media (max-width: 480px) {
 
     .game-title {
-        font-size: 20px;
+        font-size: 22px;
+        margin-bottom: 10px;
     }
 
-}
-
-
-    .main-container{
-
-        flex-direction:column;
-
-        align-items:center;
-
-        gap:25px;
+    .main-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+        margin-top: -10px;
     }
 
-    .right-panel{
+    .right-panel {
+        width: 100%;
+        max-width: 450px;
+        display: flex;
+        flex-direction: column;
+    }
 
-        width:100%;
+    /* Layout:
+       Board
+       Roll/Game
+       Players
+       Exit
+    */
 
-        max-width:500px;
+    .game-grid {
+        order: 1;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 10px;
+    }
+
+    .player-grid {
+        order: 2;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 12px;
+    }
+
+    .exit-button {
+        order: 3;
+        width: 220px;
+        margin: 22px auto 0;
     }
 
     .player-card {
-    padding: 15px;
+        padding: 14px;
+    }
+
+    .player-card h2 {
+        font-size: 18px;
+    }
+
+    .player-card p {
+        font-size: 14px;
+    }
+
+    .roll-button {
+        min-height: 72px;
+        font-size: 18px;
+    }
 }
 
-.player-card h2 {
-    font-size: 20px;
-}
+/* ===========================
+   VERY SMALL PHONES
+=========================== */
 
-.player-card p {
-    font-size: 16px;
-}
-.roll-button,
-.exit-button {
-    width: 100%;
-    max-width: 260px;
-    height: 50px;
-    font-size: 18px;
-    margin: 0 auto;
-}
+@media (max-width: 480px) {
 
+    .game-page {
+        padding: 10px;
+    }
+
+    .game-title {
+        font-size: 20px;
+        margin-bottom: 8px;
+    }
+
+    .main-container {
+        gap: 14px;
+    }
+
+    .player-grid,
+    .game-grid {
+        gap: 10px;
+    }
+
+    .player-card {
+        padding: 12px;
+    }
+
+    .player-card h2 {
+        font-size: 16px;
+        margin-bottom: 8px;
+    }
+
+    .player-card p {
+        font-size: 13px;
+    }
+
+    .roll-button {
+        min-height: 68px;
+        font-size: 16px;
+    }
+
+    .exit-button {
+        width: 200px;
+        height: 46px;
+        font-size: 16px;
+    }
 }
