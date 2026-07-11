@@ -27,9 +27,19 @@ function GamePage() {
         
         // First time loading the page
         if (lastSeenEventId.current === null) {
-            lastSeenEventId.current = res.data.lastEventId;
-            return;
-        }
+    lastSeenEventId.current = res.data.lastEventId;
+
+    if (res.data.lastEventId) {
+        setPopupMessage(res.data.lastEventMessage);
+        setShowPopup(true);
+
+        setTimeout(() => {
+            setShowPopup(false);
+        }, 4500);
+    }
+
+    return;
+}
 
       if (
     res.data.lastEventId &&
@@ -84,17 +94,25 @@ function GamePage() {
 
 let popup = "";
 
-if (move.moveType === "Snake") {
-    popup = `🐍 You were swallowed by a snake!`;
+// Special backend messages
+if (res.data.message.includes("exact roll")) {
+    popup = "🎯 You need an exact roll to reach 100!";
+    
+}
+else if (move.moveType === "Snake") {
+    popup = "🐍 You were swallowed by a snake!";
+  
 }
 else if (move.moveType === "Ladder") {
-    popup = `🪜 You climbed a ladder!`;
+    popup = "🪜 You climbed a ladder!";
+  
 }
 else if (move.gameStatus === "Finished") {
     popup = "🏆 You won the game!";
+   
 }
 else if (move.dice === 6) {
-    popup = `🎲 You rolled a 6! Play again!`;
+    popup = "🎲 You rolled a 6! Play again!";
 }
 else {
     popup = `🎲 You rolled a ${move.dice}!`;
@@ -242,63 +260,73 @@ const loser =
 
                 <div className="right-panel">
 
-                    <div className="player-card">
-                        <h2>
-                            🔴 {(game.players || [])[0]?.name || "Waiting..."}
-                        </h2>
+    <div className="player-grid">
 
-                        <p>
-                            Position : {(game.players || [])[0]?.position ?? 0}
-                        </p>
+        <div className="player-card">
+            <h2>
+                🔴 {(game.players || [])[0]?.name || "Waiting..."}
+            </h2>
 
-                        {game.currentTurnPlayerId ===
-                            (game.players || [])[0]?.id && (
-                            <p className="turn">
-                                🎯 Your Turn
-                            </p>
-                        )}
-                    </div>
+            <p>
+                Position : {(game.players || [])[0]?.position ?? 0}
+            </p>
 
-                    <div className="player-card">
-                        <h2>
-                            🔵 {(game.players || [])[1]?.name || "Waiting..."}
-                        </h2>
+            {game.currentTurnPlayerId ===
+                (game.players || [])[0]?.id && (
+                <p className="turn">
+                    🎯 Your Turn
+                </p>
+            )}
+        </div>
 
-                        <p>
-                            Position : {(game.players || [])[1]?.position ?? 0}
-                        </p>
+        <div className="player-card">
+            <h2>
+                🔵 {(game.players || [])[1]?.name || "Waiting..."}
+            </h2>
 
-                        {game.currentTurnPlayerId ===
-                            (game.players || [])[1]?.id && (
-                            <p className="turn">
-                                🎯 Your Turn
-                            </p>
-                        )}
-                    </div>
+            <p>
+                Position : {(game.players || [])[1]?.position ?? 0}
+            </p>
 
-                    <div className="player-card">
-                        <h2>🎮 Game</h2>
+            {game.currentTurnPlayerId ===
+                (game.players || [])[1]?.id && (
+                <p className="turn">
+                    🎯 Your Turn
+                </p>
+            )}
+        </div>
 
-                        <p>Room : {game.roomCode}</p>
+    </div>
 
-                        <p>Status : {game.status}</p>
-                    </div>
 
-                    <button
-                        className="roll-button"
-                        onClick={rollDice}
-                        disabled={game.currentTurnPlayerId !== playerId}
-                    >
-                        🎲 Roll Dice
-                    </button>
-                    <button
-                        className="exit-button"
-                        onClick={exitGame}
-                    >
-                        🚪 Exit Game
-                    </button>
+    <div className="game-grid">
 
-                </div>
+        <button
+            className="roll-button"
+            onClick={rollDice}
+            disabled={game.currentTurnPlayerId !== playerId}
+        >
+            🎲 Roll Dice
+        </button>
+
+        <div className="player-card">
+            <h2>🎮 Game</h2>
+
+            <p>Room : {game.roomCode}</p>
+
+            <p>Status : {game.status}</p>
+        </div>
+
+    </div>
+
+    <button
+        className="exit-button"
+        onClick={exitGame}
+    >
+        🚪 Exit Game
+    </button>
+
+</div>
 
             </div>
 
