@@ -54,7 +54,7 @@ function GamePage() {
 
     setTimeout(() => {
         setShowPopup(false);
-    }, 4500);
+    }, 3800);
 }
     } catch (err) {
         console.error(err);
@@ -123,7 +123,7 @@ setShowPopup(true);
 
 setTimeout(() => {
     setShowPopup(false);
-}, 4500);
+}, 3800);
 
 fetchGame();
      
